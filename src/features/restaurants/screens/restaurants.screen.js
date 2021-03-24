@@ -1,14 +1,14 @@
 import * as React from "react";
 import { View, FlatList } from "react-native";
-import { Searchbar } from "react-native-paper";
+import { ActivityIndicator, Colors } from "react-native-paper";
 import styled from "styled-components/native";
 
-import { SafeAreViewContainer } from "../../../components/safe-area/safe-area.component";
-import { RestaurantInfoCard } from "../components/restaurant-info-card.component";
+import { RestaurantsContext } from "../../../services/restaurants/restaurants.context";
 
-const SearchContainer = styled(View)`
-  padding: ${(props) => props.theme.space[3]};
-`;
+import { SafeAreViewContainer } from "../../../components/safe-area/safe-area.component";
+
+import { Search } from "../components/search/search.component";
+import { RestaurantInfoCard } from "../components/restaurant-info-card.component";
 
 const RestaurantList = styled(FlatList).attrs({
   contentContainerStyle: {
@@ -16,25 +16,31 @@ const RestaurantList = styled(FlatList).attrs({
   },
 })``;
 
+const LoadingContainer = styled(View)`
+  flex: 1
+  align-items: center;
+  justify-content: center;
+`;
+
 export const RestaurantsScreen = () => {
+  const { restaurants, isLoading, error } = React.useContext(
+    RestaurantsContext
+  );
+
+  if (isLoading) {
+    return (
+      <LoadingContainer>
+        <ActivityIndicator size={50} animating={true} color={Colors.blue300} />
+      </LoadingContainer>
+    );
+  }
+
   return (
     <SafeAreViewContainer>
-      <SearchContainer>
-        <Searchbar />
-      </SearchContainer>
+      <Search />
       <RestaurantList
-        data={[
-          { name: 1 },
-          { name: 2 },
-          { name: 3 },
-          { name: 4 },
-          { name: 5 },
-          { name: 6 },
-          { name: 7 },
-          { name: 8 },
-          { name: 9 },
-        ]}
-        renderItem={() => <RestaurantInfoCard />}
+        data={restaurants}
+        renderItem={({ item }) => <RestaurantInfoCard restaurant={item} />}
         keyExtractor={(item) => item.name}
       />
     </SafeAreViewContainer>
